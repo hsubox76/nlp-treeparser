@@ -1,0 +1,16 @@
+{
+  "name": "parseTest",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "natural": "^0.2.1",
+    "pos": "^0.1.9",
+    "retext": "^0.5.1"
+  }
+}

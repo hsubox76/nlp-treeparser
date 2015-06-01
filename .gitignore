@@ -1,0 +1,7 @@
+mpos/
+negex.python/
+node_modules/
+retext/
+
+*.tar.Z
+*.zip
