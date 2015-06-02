@@ -35,6 +35,13 @@ Queue.prototype.dequeue = function () {
   return tmp;
 };
 
+Queue.prototype.peek = function () {
+  if (this.last - this.first <= 0) {
+    return null;
+  }
+  return this.storage[this.first];
+};
+
 Queue.prototype.length = function () {
   return this.last - this.first;
 };
@@ -83,180 +90,6 @@ Tree.prototype.print = function () {
   });
 };
 
-var tree = new Tree('ate', 'VBD');
-var child1 = tree.addChild('cow', 'NN');
-var child2 = tree.addChild('grass', 'NN');
-child1.addChild('the', 'DT');
-child2.addChild('the', 'DT');
-
-//tree.print();
-
-// RULES
-// (1) Find a verb - root
-// (2) Set verb mode - store verb in lastVerb
-//    Go left 
-//    if adverb && verbMode make child of lastVerb
-//       set adverb mode - store adverb in lastAdverb
-//    if adverb & adverbMode - make child of lastAdverb
-//        store adverb in lastAdverb
-//    if noun && lastVerb - make child of lastVerb
-//        store noun in lastNoun
-
-var makeParseTree = function (words) {
-  var tree = new Tree();
-  var verbMode = false;
-  var adverbMode = false;
-  var nounMode = false;
-  var adjMode = false;
-  var lastVerb;
-  var lastAdverb;
-  var lastNoun;
-  var lastAdj;
-  var rootIndex;
-  var currentIndex;
-  var newNode;
-
-  // find first verb
-  for (var i = 0; i < words.length; i++) {
-    var word = words[i].word;
-    var tag = words[i].tag;
-    if (tag === 'VBD' || tag === 'VB' || tag === 'VBP' || tag === 'VBZ') {
-      tree.word = word;
-      tree.pos = tag;
-      verbMode = true;
-      lastVerb = tree;
-      rootIndex = i;
-      break;
-    }
-  }
-
-  var walkLeft = function() {
-    currentIndex--;
-    wordData = words[currentIndex];
-    console.log('-------');
-    console.log('verb mode: ' + verbMode);
-    console.log('noun mode: ' + nounMode);
-    console.log("word: " + wordData.word + " tag: " + wordData.tag);
-    // adverb while in verb mode
-    if (wordData.tag === 'RB' && verbMode === true) {
-      newNode = lastVerb.addChild(wordData.word, wordData.tag);
-      adverbMode = true;
-      verbMode = false;
-      nounMode = false;
-      adjMode = false;
-      lastAdverb = newNode;
-    }
-    // adverb while in adjective mode
-    else if (wordData.tag === 'RB' && adjMode === true) {
-      newNode = lastAdverb.addChild(wordData.word, wordData.tag);
-      lastAdverb = newNode;
-    }
-    // adverb while in adverb mode
-    else if (wordData.tag === 'RB' && adverbMode === true) {
-      newNode = lastAdverb.addChild(wordData.word, wordData.tag);
-      lastAdverb = newNode;
-    }
-    // noun... any mode?
-    else if (wordData.tag === 'NN' || wordData.tag === 'NNP' || wordData.tag === 'NNPS' || wordData.tag === 'NNS' || wordData.tag === 'PRP') {
-      newNode = lastVerb.addChild(wordData.word, wordData.tag);
-      adverbMode = false;
-      verbMode = false;
-      nounMode = true;
-      adjMode = false;
-      lastNoun = newNode;
-    }
-    // adjective while in noun mode
-    else if (nounMode && (wordData.tag === 'JJ' || wordData.tag === 'JJR' || wordData.tag === 'JJS')) {
-      newNode = lastNoun.addChild(wordData.word, wordData.tag);
-      adjMode = true;
-      lastAdj = newNode;
-    }
-    // determiner while in noun mode
-    else if (wordData.tag === 'DT' || wordData.tag === 'PDT' && nounMode === true) {
-      newNode = lastNoun.addChild(wordData.word, wordData.tag);
-      nounMode = false;
-    }
-    // possessive ending
-    else if (wordData.tag === 'POS') {
-      newNode = lastNoun.addChild(wordData.word, wordData.tag);
-      currentIndex--;
-      newNode = newNode.addChild(words[currentIndex].word, words[currentIndex].tag);
-    }
-  };
-
-  var walkRight = function() {
-    currentIndex++;
-    wordData = words[currentIndex];
-    console.log('-------');
-    console.log('verb mode: ' + verbMode);
-    console.log('noun mode: ' + nounMode);
-    console.log('last noun: ' + lastNoun.word);
-    console.log("word: " + wordData.word + " tag: " + wordData.tag);
-    // adverb
-    if (wordData.tag === 'RB' || wordData.tag === 'RBR' || wordData.tag === 'RBS') {
-      if (verbMode) {
-        newNode = lastVerb.addChild(wordData.word, wordData.tag);
-        lastAdverb = newNode;
-      }
-    }
-    // adjective while in verb mode (bad grammar but everyone does it)
-    else if (verbMode && (wordData.tag === 'JJ' || wordData.tag === 'JJR' || wordData.tag === 'JJS')) {
-      console.log('opt 2');
-      newNode = lastVerb.addChild(wordData.word, wordData.tag);
-      adverbMode = true;
-      verbMode = false;
-      nounMode = false;
-      lastAdverb = newNode;
-    }
-    // verb in verb mode
-    else if (verbMode && (wordData.tag === 'VBD' || wordData.tag === 'VB' || wordData.tag === 'VBP' || wordData.tag === 'VBZ')) {
-      newNode = lastVerb.addChild(wordData.word, wordData.tag);
-      adverbMode = false;
-      verbMode = true;
-      nounMode = false;
-      adjMode = false;
-      lastVerb = newNode;
-    }
-    // verb in noun mode
-    else if (nounMode && (wordData.tag === 'VBD' || wordData.tag === 'VB' || wordData.tag === 'VBP' || wordData.tag === 'VBZ')) {
-      newNode = lastVerb.addChild(wordData.word, wordData.tag);
-      lastNoun.removeMe();
-      newNode.children.push(lastNoun);
-      lastNoun.parent = newNode;
-      adverbMode = false;
-      verbMode = true;
-      nounMode = false;
-      adjMode = false;
-      lastVerb = newNode;
-    }
-    // noun... subject of verb?
-    else if (wordData.tag === 'NN' || wordData.tag === 'NNP' || wordData.tag === 'NNPS' || wordData.tag === 'NNS' || wordData.tag === 'PRP') {
-      newNode = lastVerb.addChild(wordData.word, wordData.tag);
-      adverbMode = false;
-      verbMode = false;
-      nounMode = true;
-      adjMode = false;
-      lastNoun = newNode;
-    }
-  };
-
-  console.log(words);
-  currentIndex = rootIndex;
-  while (currentIndex > 0) {
-    walkLeft();
-  }
-  currentIndex = rootIndex;
-  verbMode = true;
-  while (currentIndex < words.length - 1) {
-    walkRight();
-  }
-  console.log(words[currentIndex]);
-
-  tree.print();
-
-};
-
-//makeParseTree(taggedWords);
 
 var Stack = function () {
   this.storage = {};
@@ -288,20 +121,21 @@ Stack.prototype.top = function () {
 };
 
 var TransitionParser = function () {
-  this.stack = new Stack();
+  this.stack = [];
   this.buffer = new Queue();
   this.arcs = {};
 };
 
 TransitionParser.prototype.init = function (words) {
   this.words = words;
-  this.stack.push('ROOT');
+  this.stack.push({index: 'ROOT'});
   for (var i = 0; i < this.words.length; i++) {
     this.buffer.enqueue(words[i]);
   }
 };
 
 TransitionParser.prototype.simplifyPOS = function (pos) {
+  //console.log('simplifying ' + pos);
   var simplePos;
   switch (pos) {
     case 'JJ': // adjective
@@ -318,46 +152,128 @@ TransitionParser.prototype.simplifyPOS = function (pos) {
       break;
     case 'RB': //adverb
       simplePos = 'adv';
+      break;
+    case 'VB': // verb base form
+    case 'VBD': // verb past tense
+    case 'VBP': // verb present
+    case 'VBZ': // verb present
+      simplePos = 'verb';
+      break;
+    case 'IN': // preposition
+    case 'TO': // to
+      simplePos = 'prep';
+      break;
+    case '.':
+      simplePos = '.';
+      break;
+    default:
+      simplePos = 'undefinedPOS';
   }
-  console.log(simplePos);
+  //console.log(simplePos);
   return simplePos;
 };
 
 TransitionParser.prototype.getRelationship = function (word1, word2) {
-  console.log(word1, word2);
   var pos1 = this.simplifyPOS(word1.tag);
   var pos2 = this.simplifyPOS(word2.tag);
-  console.log(pos1, pos2);
 
   var relationships = {
+    noun: {
+      adj: 1,
+      verb: -1,
+      prep: 1
+    },
+    verb: {
+      noun: 1
+    },
     adj: {
-      noun: 1,
-      adv: -1
+      noun: -1
+    },
+    prep: {
+      noun: -1
+    },
+    ".": {
+      verb: -1,
+      noun: -1,
+      adj: -1,
+      prep: -1
     }
   };
 
+  // console.log(word1, word2);
+  // console.log(pos1, pos2);
   // positive: word1 depends on word2
   // negative: word2 depends on word1
-  return relationships[pos1][pos2] > 0;
+  return relationships[pos1][pos2];
 };
 
 TransitionParser.prototype.parse = function () {
+  // clear queue
   while (this.buffer.length() > 0) {
-    var word = this.buffer.dequeue();
-    // if there's only the root
-    if (this.stack.size() <= 1) {
-      this.stack.push(word);
-    } else {
-      var relationship = this.getRelationship(this.stack.top(), word);
-      if (relationship === 1) {
-        arcs[word.i] = { start: word, end: this.stack.pop() };
-      } else if (relationship === -1) {
-        arcs[word.i] = { start: this.stack.pop(), end: word };
+    var nextWord = this.buffer.peek();
+    if (this.simplifyPOS(nextWord.tag) === '.') {
+      break;
+    }
+    var newWord = this.buffer.dequeue();
+    // if period, clear stack
+    console.log('------------');
+    console.log('new word: ' + newWord.word);
+    var oldWord = this.stack.pop();
+    if (oldWord.index === 'ROOT') {
+      this.stack.push(oldWord);
+    }
+    if (this.simplifyPOS(oldWord.tag) === 'verb' && !this.arcs['ROOT']) {
+      this.arcs['ROOT'] = [oldWord.index];
+    }
+
+    var relationship = this.getRelationship(newWord, oldWord);
+    var parent;
+    console.log('relationship: ' + relationship);
+
+    // if new word beats old word
+    // create arc new word -> old word
+    if (relationship === 1) {
+      console.log('creating arc ' + newWord.index + ' to ' + oldWord.index);
+      if (this.arcs[newWord.index]) {
+        this.arcs[newWord.index].push(oldWord.index);
+      } else {
+        this.arcs[newWord.index] = [oldWord.index];
+      }
+    } else if (relationship === -1) {
+      console.log('creating arc ' + oldWord.index + ' to ' + newWord.index);
+      if (this.arcs[oldWord.index]) {
+        this.arcs[oldWord.index].push(newWord.index);
+      } else {
+        this.arcs[oldWord.index] = [newWord.index];
       }
     }
+
+    console.log('arc of whats on top of stack');
+    console.log(this.stack[this.stack.length-1].index);
+    console.log(this.arcs[this.stack[this.stack.length-1].index]);
+
+    if (this.arcs[this.stack[this.stack.length-1].index] && this.arcs[this.stack[this.stack.length-1].index].some(function (item) {
+      return item === oldWord.index;
+    })) {
+      console.log('parent is in stack');
+      this.stack.push(oldWord);
+    }
+    else if (this.arcs[oldWord.index] && this.arcs[oldWord.index].some(function (item) {
+      return item === newWord.index;
+    })) {
+      console.log('parent is oldWord');
+      this.stack.push(oldWord);
+    }
+
+    this.stack.push(newWord);
+    console.log('STACK:');
+    console.log(this.stack);
+
   }
+  console.log('ARCS:');
+  console.log(this.arcs);
 };
-var words = tokenizer.tokenize("Economic news");
+var words = tokenizer.tokenize("Economic news had little effect on financial markets.");
 
 
 var taggedWords = new pos.Tagger().tag(words);
