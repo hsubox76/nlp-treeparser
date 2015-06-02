@@ -206,10 +206,12 @@ var dependsOn = function (word1, word2, dir) {
     },
     verb: {
       noun: -1,
-      adv: -1
+      adv: -1,
+      adj: -1
     },
     adj: {
-      noun: 1
+      noun: 1,
+      verb: 1
     },
     prep: {
       noun: 1
@@ -230,10 +232,12 @@ var dependsOn = function (word1, word2, dir) {
     },
     verb: {
       noun: -1,
-      adv: -1
+      adv: -1,
+      adj: -1
     },
     adj: {
-      noun: 1
+      noun: 1,
+      verb: 1
     },
     prep: {
       noun: 1
@@ -331,15 +335,15 @@ var getArcs = function(wordData) {
     // seeing if this word can be a parent of any preceding words
     while (d) {
       if (dependsOn(d.value, w, 'pre') > 0) {
-        console.log(d.value.word + ' depends on ' + w.word);
-        headList.print();
-        wordList.print();
+        // console.log(d.value.word + ' depends on ' + w.word);
+        // headList.print();
+        // wordList.print();
         if (deps[w.index]) {
           deps[w.index].push(d.value.index);
         } else {
           deps[w.index] = [d.value.index];
         }
-        console.log('removing ' + d.value.word + ' from headlist');
+        // console.log('removing ' + d.value.word + ' from headlist');
         headList.remove(d.value);
       } else {
         break;
@@ -354,18 +358,18 @@ var getArcs = function(wordData) {
     // seeing if this word is a dependent of any preceding words
     while (h) {
       if (w.word === 'on') {
-        console.log('trying to find a head for on');
-        console.log('trying ' + h.value.word);
-        console.log(dependsOn(w, h.value, 'post'));
+        // console.log('trying to find a head for on');
+        // console.log('trying ' + h.value.word);
+        // console.log(dependsOn(w, h.value, 'post'));
       }
       if (h.value.index > w.index - 1) {
         h = h.next;
         continue;
       }
       if (dependsOn(w, h.value, 'post') > 0) {
-        console.log(w.word + ' depends on ' + h.value.word);
-        headList.print();
-        wordList.print();
+        // console.log(w.word + ' depends on ' + h.value.word);
+        // headList.print();
+        // wordList.print();
         if (deps[h.value.index]) {
           deps[h.value.index].push(w.index);
         } else {
@@ -375,7 +379,7 @@ var getArcs = function(wordData) {
         break;
       } else {
         if (outranks(h.value,w) > 0) {
-          console.log('breaking because ' + h.value.word + ' outranks ' + w.word);
+          // console.log('breaking because ' + h.value.word + ' outranks ' + w.word);
           break;
         }
       }
@@ -386,6 +390,7 @@ var getArcs = function(wordData) {
       headList.addToHead(w);
     }
   });
+  console.log(deps);
   return { head: headList.head, deps: deps };
 };
 

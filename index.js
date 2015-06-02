@@ -7,6 +7,10 @@ var words = tokenizer.tokenize("Economic news had little effect on financial mar
 var taggedWords = new pos.Tagger().tag(words);
 taggedWords = LSU.processWords(taggedWords);
 
-var deps = LSU.getArcs(taggedWords).deps;
-console.log(deps);
+var tree = LSU.parse(taggedWords);
+
+var words = tokenizer.tokenize("The cat was fat.");
+var taggedWords = new pos.Tagger().tag(words);
+taggedWords = LSU.processWords(taggedWords);
+
 var tree = LSU.parse(taggedWords);
