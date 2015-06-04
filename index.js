@@ -1,4 +1,4 @@
-var LSU = require('./lsu.js');
+var LSU = require('./server/lsu.js');
 var pos = require('pos');
 var natural = require('natural');
 var d3 = require('d3');
