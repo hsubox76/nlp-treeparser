@@ -1,0 +1,25 @@
+{
+  "name": "parseTest",
+  "main": "index.js",
+  "version": "0.0.0",
+  "homepage": "https://github.com/hsubox76/parse-test",
+  "authors": [
+    "Christina Holland <hsubox@gmail.com>"
+  ],
+  "moduleType": [
+    "amd",
+    "node"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "d3": "~3.5.5",
+    "jquery": "~2.1.4"
+  }
+}

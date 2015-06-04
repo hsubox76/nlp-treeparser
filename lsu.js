@@ -1,3 +1,6 @@
+// LSU (list-based search with uniqueness) based on algorithm here:
+// http://web.stanford.edu/~mjkay/covington.pdf
+
 var List = function () {
   this.head = null;
   this.tail = null;
@@ -105,12 +108,12 @@ Queue.prototype.length = function () {
 var Tree = function (value) {
   this.value = value;
   this.children = [];
-  this.parent = null;
+  //this.parent = null;
 };
 
 Tree.prototype.addChild = function (value) {
   var child = new Tree(value);
-  child.parent = this;
+  //child.parent = this;
   this.children.push(child);
   return child;
 };
@@ -118,7 +121,7 @@ Tree.prototype.addChild = function (value) {
 Tree.prototype.removeMe = function () {
   console.log('removing ' + this.word + ' from parent ' + this.parent.word);
   var index = this.parent.children.indexOf(this);
-  this.parent.children.splice(index, 1);
+  //this.parent.children.splice(index, 1);
 };
 
 // breadth first tree print to console
@@ -129,7 +132,8 @@ Tree.prototype.print = function () {
     if (!rows[depth]) {
       rows[depth] = "";
     }
-    var x = node.parent ? node.parent.value.word : 'null';
+    //var x = node.parent ? node.parent.value.word : 'null';
+    var x = 'x';
     rows[depth] = rows[depth].concat(' [ ' + node.value.word + ' | ' + node.value.tag + ' | ' + x + ' ] ');
     for (var i = 0; i < node.children.length; i++) {
       queue.enqueue([node.children[i], depth+1]);
@@ -390,7 +394,7 @@ var getArcs = function(wordData) {
       headList.addToHead(w);
     }
   });
-  console.log(deps);
+  //console.log(deps);
   return { head: headList.head, deps: deps };
 };
 
@@ -401,7 +405,7 @@ var parse = function(wordData) {
   var arcs = arcData.deps;
   var root = arcData.head;
   var tree = new Tree(root.value);
-  console.log(root);
+  //console.log(root);
   var recurse = function (head, node) {
     arcs[head].forEach( function (dependent) {
       var newNode = node.addChild(wordData[dependent]);
@@ -412,6 +416,7 @@ var parse = function(wordData) {
   };
   recurse(root.value.index, tree);
   tree.print();
+  return tree;
 };
 
 exports.getArcs = getArcs;

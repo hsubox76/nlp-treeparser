@@ -2,6 +2,7 @@ mpos/
 negex.python/
 node_modules/
 retext/
+bower_components/
 
 *.tar.Z
 *.zip

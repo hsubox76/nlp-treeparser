@@ -9,6 +9,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.12.4",
+    "d3": "^3.5.5",
+    "express": "^4.12.4",
     "natural": "^0.2.1",
     "pos": "^0.1.9",
     "retext": "^0.5.1"
