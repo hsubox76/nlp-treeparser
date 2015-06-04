@@ -41,7 +41,7 @@ var drawGraph = function (treeData) {
   var links = tree.links(nodes);
 
   var diagonal = d3.svg.diagonal()
-  .projection(function(d) { return [d.x, d.y+25]; });
+  .projection(function(d) { return [d.x, d.y+35]; });
 
 
   var link = svg.selectAll("pathlink")
@@ -55,16 +55,21 @@ var drawGraph = function (treeData) {
     .enter().append("g")
     .attr("class", "node")
     .attr("transform", function(d) {
-      return "translate(" + d.x + "," + (d.y + 25) + ")";
+      return "translate(" + d.x + "," + (d.y + 35) + ")";
     });
 
   node.append("circle")
-    .attr("r", 15);
+    .attr("r", 25);
 
   node.append("text")
-    .attr("dy", ".35em")
+    .attr("dy", "-0.2em")
     .attr("text-anchor", "middle")
     .text(function (d) { return d.value.word; });
+
+  node.append("text")
+    .attr("dy", ".8em")
+    .attr("text-anchor", "middle")
+    .text(function (d) { return "(" + d.value.tag + ")"; });
 };
 
 var handleParseRequest = function(event) {

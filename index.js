@@ -32,9 +32,8 @@ var sentenceToTree = function(sentence) {
   var taggedWords = new pos.Tagger().tag(words);
   taggedWords = LSU.processWords(taggedWords);
 
-  //console.log(taggedWords);
+  console.log(taggedWords);
 
   var tree = LSU.parse(taggedWords);
-  //console.log(tree);
   return tree;
 };

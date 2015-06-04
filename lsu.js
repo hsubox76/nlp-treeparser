@@ -202,6 +202,13 @@ var dependsOn = function (word1, word2, dir) {
   var pos1 = simplifyPOS(word1.tag);
   var pos2 = simplifyPOS(word2.tag);
 
+  if (!pos1) {
+    console.log('No POS defined for ' + word1.word);
+  }
+  if (!pos2) {
+    console.log('No POS defined for ' + word2.word);
+  }
+
   var preRelationships = {
     noun: {
       adj: -1,
@@ -211,7 +218,8 @@ var dependsOn = function (word1, word2, dir) {
     verb: {
       noun: -1,
       adv: -1,
-      adj: -1
+      adj: -1,
+      verb: -1
     },
     adj: {
       noun: 1,
@@ -219,6 +227,9 @@ var dependsOn = function (word1, word2, dir) {
     },
     prep: {
       noun: 1
+    },
+    adv: {
+      verb: 1
     },
     ".": {
       verb: 1,
@@ -237,14 +248,19 @@ var dependsOn = function (word1, word2, dir) {
     verb: {
       noun: -1,
       adv: -1,
-      adj: -1
+      adj: -1,
+      verb: 1
     },
     adj: {
       noun: 1,
       verb: 1
     },
     prep: {
-      noun: 1
+      noun: 1,
+      verb: 1
+    },
+    adv: {
+      verb: 1
     },
     ".": {
       verb: 1,
@@ -253,11 +269,18 @@ var dependsOn = function (word1, word2, dir) {
       prep: 1
     }
   };
-
   if (dir === 'pre') {
-    return preRelationships[pos1][pos2];
+    if (!preRelationships[pos1]) {
+      console.log('No pre relationship found for ' + pos1 + ' to ' + pos2);
+    } else {
+      return preRelationships[pos1][pos2];
+    }
   } else if (dir === 'post') {
-    return postRelationships[pos1][pos2];
+    if (!postRelationships[pos1]) {
+      console.log('No post relationship found for ' + pos1 + ' to ' + pos2);
+    } else {
+      return postRelationships[pos1][pos2];
+    }
   }
 };
 
@@ -290,6 +313,9 @@ var outranks = function (word1, word2) {
       verb: -1,
       adv: 1
     },
+    adv: {
+      verb: -1
+    },
     ".": {
       verb: 1,
       noun: 1,
@@ -298,7 +324,11 @@ var outranks = function (word1, word2) {
     }
   };
 
-  return outranks[pos1][pos2];
+  if (!outranks[pos1]) {
+    console.log('No rank relationship found for ' + pos1 + ' to ' + pos2);
+  } else {
+    return outranks[pos1][pos2];
+  }
 };
 
 var processWords = function (words) {
@@ -394,7 +424,7 @@ var getArcs = function(wordData) {
       headList.addToHead(w);
     }
   });
-  //console.log(deps);
+  console.log(deps);
   return { head: headList.head, deps: deps };
 };
 
@@ -407,15 +437,19 @@ var parse = function(wordData) {
   var tree = new Tree(root.value);
   //console.log(root);
   var recurse = function (head, node) {
-    arcs[head].forEach( function (dependent) {
-      var newNode = node.addChild(wordData[dependent]);
-      if (arcs[dependent]) {
-        recurse(dependent, newNode);
-      }
-    });
+    if (arcs[head]) {
+      arcs[head].forEach( function (dependent) {
+        var newNode = node.addChild(wordData[dependent]);
+        if (arcs[dependent]) {
+          recurse(dependent, newNode);
+        }
+      });
+    } else {
+      //console.log(head);
+    }
   };
   recurse(root.value.index, tree);
-  tree.print();
+  //tree.print();
   return tree;
 };
 
