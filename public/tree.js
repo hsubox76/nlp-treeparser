@@ -7,13 +7,76 @@ var getParsedTreeData = function(sentence) {
     data: query,
     success: function(data) {
       console.log('got data');
-      drawGraph(data);
+      $('#treesvg').remove();
+      drawGraph(data.tree);
+      $('.rulesTable').empty();
+      displayRules(data.rules);
     },
     error: function(xhr, status, err) {
       console.log(status);
     }
   });
 
+};
+
+var handleSubmit = function (rules) {
+  var checkBoxes = $('.rulesForm').find('input');
+  var badRules = [];
+  for (var i = 0; i < checkBoxes.length; i++) {
+    if (checkBoxes[i].checked) {
+      badRules.push(rules[i]);
+    }
+  }
+  var sentence = $('#sentence-input').val();
+  var dataToSend = {
+    sentence: sentence,
+    badRules: badRules
+  };
+  if (badRules.length > 0) {
+    $.ajax({
+      url: 'feedback',
+      type: 'POST',
+      data: dataToSend,
+      success: function(data) {
+        console.log(data);
+      },
+      error: function(status, err) {
+        console.log(err);
+      }
+    });
+  }
+};
+
+var displayRules = function(rules) {
+  rules.forEach(function (rule, i) {
+    var verb = "depends on";
+    var ruleString = '<div class="ruleField ruleType">';
+    if (rule.rule === 'predepend') {
+      ruleString += '[PRE]';
+    } else if (rule.rule === 'postdepend') {
+      ruleString += '[POST]';
+    } else if (rule.rule === 'outrank') {
+      ruleString += '[OUTR]';
+      verb = "outranks";
+    }
+    ruleString += '</div><div class="ruleField ruleWord">' + rule.word1.word + ' (' + rule.word1.tag + ')</div>';
+    ruleString += '<div class="ruleField ruleVerb">' + verb + '</div>';
+    ruleString += '<div class="ruleField ruleWord">' + rule.word2.word + ' (' + rule.word2.tag + ')</div>';
+    ruleString += '<div class="ruleField wrongBox">wrong? <input type="checkbox" id="cb' + i +'"></div>';
+    var $newRow = $('<div></div>')
+      .addClass('rule')
+      .addClass('cf')
+      .html(ruleString)
+      .data("rule", rule);
+    $('.rulesTable').append($newRow);
+  });
+  $sendButton = $('<button>Send</button>').addClass('send-button');
+  $('.rulesForm').append($sendButton);
+
+  $('.rulesForm').submit(function (event) {
+    event.preventDefault();
+    handleSubmit(rules);
+  });
 };
 
 var drawGraph = function (treeData) {
@@ -28,8 +91,7 @@ var drawGraph = function (treeData) {
   ]}] }
     ]};
 
-  var cont = d3.select('body').append('div')
-    .attr('id', 'container');;
+  var cont = d3.select('div#container');
   var svg = cont.append('svg')
     .attr('width', 600)
     .attr('height', 300)

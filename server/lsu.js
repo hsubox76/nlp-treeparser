@@ -336,6 +336,9 @@ var processWords = function (words) {
     if (word[0] === "'s") {
       word[1] = 'POS';
     }
+    if (word[0] === "n't") {
+      word[1] = 'RB';
+    }
     if (word[0] === "ca" && words[i+1][0] === "n't") {
       word[0] = "can";
       word[1] = "VB";
@@ -359,6 +362,8 @@ var getArcs = function(wordData) {
   var headList = new List();
   var wordList = new List();
   var deps = {};
+  var rulesUsed = [];
+  var headless = [];
 
   wordData.forEach(function (w, index) {
     // item = next word to be parsed
@@ -369,6 +374,11 @@ var getArcs = function(wordData) {
     // seeing if this word can be a parent of any preceding words
     while (d) {
       if (dependsOn(d.value, w, 'pre') > 0) {
+        rulesUsed.push({
+          word1: d.value,
+          word2: w,
+          rule: 'predepend'
+        });
         // console.log(d.value.word + ' depends on ' + w.word);
         // headList.print();
         // wordList.print();
@@ -401,6 +411,11 @@ var getArcs = function(wordData) {
         continue;
       }
       if (dependsOn(w, h.value, 'post') > 0) {
+        rulesUsed.push({
+          word1: w,
+          word2: h.value,
+          rule: 'postdepend'
+        });
         // console.log(w.word + ' depends on ' + h.value.word);
         // headList.print();
         // wordList.print();
@@ -413,6 +428,11 @@ var getArcs = function(wordData) {
         break;
       } else {
         if (outranks(h.value,w) > 0) {
+          rulesUsed.push({
+            word1: h.value,
+            word2: w,
+            rule: 'outrank'
+          });
           // console.log('breaking because ' + h.value.word + ' outranks ' + w.word);
           break;
         }
@@ -425,7 +445,12 @@ var getArcs = function(wordData) {
     }
   });
   console.log(deps);
-  return { head: headList.head, deps: deps };
+  var x = wordList.head;
+  while (x) {
+    headless.push(x.value);
+    x = x.next;
+  }
+  return { head: headList.head, deps: deps, rules: rulesUsed, headless: headless };
 };
 
 // build a tree
@@ -450,7 +475,7 @@ var parse = function(wordData) {
   };
   recurse(root.value.index, tree);
   //tree.print();
-  return tree;
+  return {tree: tree, rules: arcData.rules, headless: arcData.headless };
 };
 
 exports.getArcs = getArcs;
