@@ -152,48 +152,67 @@ Tree.prototype.print = function () {
 var simplifyPOS = function (pos) {
   //console.log('simplifying ' + pos);
   var simplePos;
-  switch (pos) {
-    case 'CC':
-      simplePos = 'conj';
-      break;
-    case 'PP$': // possessive pronoun
-    case 'PDT': // predeterminer
-    case 'DT': // determiner
-    case 'CD': // cardinal number
-    case 'JJ': // adjective
-    case 'JJR': // adj, comparative
-    case 'JJS': // adj, superlative
-      simplePos = 'adj';
-      break;
-    case 'NN': // noun
-    case 'NNP': // proper noun
-    case 'NNPS': // plural proper noun
-    case 'NNS': // plural noun
-    case 'PRP': // personal pronoun
-      simplePos = 'noun';
-      break;
-    case 'RB': //adverb
-      simplePos = 'adv';
-      break;
-    case 'MD': // modal (can, should)
-    case 'VB': // verb base form
-    case 'VBD': // verb past tense
-    case 'VBP': // verb present
-    case 'VBZ': // verb present
-      simplePos = 'verb';
-      break;
-    case 'IN': // preposition
-    case 'TO': // to
-      simplePos = 'prep';
-      break;
-    case '.':
-      simplePos = '.';
-      break;
-    default:
-      simplePos = 'undefinedPOS';
-  }
+
+  var posTranslate = {
+    'CC': 'conj',
+    'PP': 'adj',
+    'PP$': 'adj', // possessive pronoun
+    'PDT': 'adj', // predeterminer
+    'DT': 'adj', // determiner
+    'CD': 'adj', // cardinal number
+    'JJ': 'adj', // adjective
+    'JJR': 'adj', // adj, comparative
+    'JJS': 'adj', // adj, superlative
+    'NN': 'noun', // noun
+    'NNP': 'noun', // proper noun
+    'NNPS': 'noun', // plural proper noun
+    'NNS': 'noun', // plural noun
+    'PRP': 'noun', // personal pronoun
+    'RB': 'adv', //adverb
+    'MD': 'verb', // modal (can, should)
+    'VB': 'verb', // verb base form
+    'VBD': 'verb', // verb past tense
+    'VBP': 'verb', // verb present
+    'VBZ': 'verb', // verb present
+    'VBG': 'verb', // gerund - may have to do something special
+    'IN': 'prep', // preposition
+    'TO': 'prep', // to
+    'SYM': 'sym', // +,%,&
+    ':': 'sym', // mid-sentence punctuation
+    '$': 'sym', // $
+    '#': 'sym', // #
+    '"': 'quote',
+    '(': 'lparen',
+    ')': 'rparen',
+    'WDT': 'adj', // wh-determiner
+    'WP': 'noun', // wh-pronoun
+    'WP$': 'adj', // possessive-wh
+    'WRB': 'adv', // wh adverb
+  };
+
+
+
+  // list of POS abbrevs that just return themselves
+  // . (end of sentence)
+  // , (comma)
+  // EX (existential there)
+  // FW (foreign word)
+  // LS (list item marker)
+  // RP (particle)
+  // UH (interjection)
+
+
   //console.log(simplePos);
-  return simplePos;
+  if (posTranslate[pos]) {
+    return posTranslate[pos];
+  } else {
+    return pos;
+  }
+};
+
+var simplifyTag = function (wordObj) {
+  wordObj.tag = simplifyPOS(wordObj.tag);
+  return wordObj;
 };
 
 var dependsOn = function (word1, word2, dir) {
@@ -209,66 +228,137 @@ var dependsOn = function (word1, word2, dir) {
     console.log('No POS defined for ' + word2.word);
   }
 
+  // simplified types:
+  // adj
+  // adv
+  // conj
+  // noun
+  // prep
+  // verb
+  // ignore for now:
+  // quote
+  // sym
+  // lparen
+  // rparen
+
   var preRelationships = {
-    noun: {
-      adj: -1,
-      verb: 1,
-      prep: -1
-    },
-    verb: {
-      noun: -1,
-      adv: -1,
-      adj: -1,
-      verb: -1
-    },
     adj: {
+      adj: -1,
+      adv: -1,
+      conj: -1,
       noun: 1,
-      verb: 1
-    },
-    prep: {
-      noun: 1
+      prep: -1,
+      verb: 1,
     },
     adv: {
-      verb: 1
+      adj: -1,
+      adv: 1,
+      conj: -1,
+      noun: -1,
+      prep: -1,
+      verb: 1,
+    },
+    conj: {
+      adj: 1,
+      adv: 1,
+      conj: 1,
+      noun: 1,
+      prep: 1,
+      verb: 1,
+    },
+    noun: {
+      adj: -1,
+      adv: -1,
+      conj: -1,
+      noun: 1,
+      prep: -1,
+      verb: 1,
+    },
+    prep: {
+      adj: -1,
+      adv: -1,
+      conj: -1,
+      noun: 1,
+      prep: -1,
+      verb: 1,
+    },
+    verb: {
+      adj: -1,
+      adv: -1,
+      conj: -1,
+      noun: -1,
+      prep: -1,
+      verb: -1,
     },
     ".": {
-      verb: 1,
-      noun: 1,
       adj: 1,
-      prep: 1
+      adv: 1,
+      conj: 1,
+      noun: 1,
+      prep: 1,
+      verb: 1,
     }
   };
 
   var postRelationships = {
-    noun: {
-      adj: -1,
-      verb: 1,
-      prep: 1
-    },
-    verb: {
-      noun: -1,
-      adv: -1,
-      adj: -1,
-      verb: 1
-    },
     adj: {
+      adj: -1,
+      adv: -1,
+      conj: -1,
       noun: 1,
-      verb: 1
-    },
-    prep: {
-      noun: 1,
-      verb: 1
+      prep: -1,
+      verb: 1,
     },
     adv: {
-      verb: 1
+      adj: -1,
+      adv: 1,
+      conj: -1,
+      noun: -1,
+      prep: -1,
+      verb: 1,
+    },
+    conj: {
+      adj: 1,
+      adv: 1,
+      conj: 1,
+      noun: 1,
+      prep: 1,
+      verb: 1,
+    },
+    noun: {
+      adj: -1,
+      adv: -1,
+      conj: -1,
+      noun: 1,
+      prep: 1,
+      verb: 1,
+    },
+    prep: {
+      adj: -1,
+      adv: -1,
+      conj: -1,
+      noun: 1,
+      prep: -1,
+      verb: 1,
+    },
+    verb: {
+      adj: -1,
+      adv: -1,
+      conj: -1,
+      noun: -1,
+      prep: -1,
+      verb: 1,
     },
     ".": {
-      verb: 1,
-      noun: 1,
       adj: 1,
-      prep: 1
+      adv: 1,
+      conj: 1,
+      noun: 1,
+      prep: 1,
+      verb: 1,
     }
   };
+
   if (dir === 'pre') {
     if (!preRelationships[pos1]) {
       console.log('No pre relationship found for ' + pos1 + ' to ' + pos2);
@@ -375,8 +465,8 @@ var getArcs = function(wordData) {
     while (d) {
       if (dependsOn(d.value, w, 'pre') > 0) {
         rulesUsed.push({
-          word1: d.value,
-          word2: w,
+          word1: simplifyTag(d.value),
+          word2: simplifyTag(w),
           rule: 'predepend'
         });
         // console.log(d.value.word + ' depends on ' + w.word);
@@ -401,19 +491,17 @@ var getArcs = function(wordData) {
 
     // seeing if this word is a dependent of any preceding words
     while (h) {
-      if (w.word === 'on') {
-        // console.log('trying to find a head for on');
-        // console.log('trying ' + h.value.word);
-        // console.log(dependsOn(w, h.value, 'post'));
-      }
+        console.log('trying to find a head for' + w.word);
+        console.log('trying ' + h.value.word);
+        console.log(dependsOn(w, h.value, 'post'));
       if (h.value.index > w.index - 1) {
         h = h.next;
         continue;
       }
       if (dependsOn(w, h.value, 'post') > 0) {
         rulesUsed.push({
-          word1: w,
-          word2: h.value,
+          word1: simplifyTag(w),
+          word2: simplifyTag(h.value),
           rule: 'postdepend'
         });
         // console.log(w.word + ' depends on ' + h.value.word);
@@ -429,8 +517,8 @@ var getArcs = function(wordData) {
       } else {
         if (outranks(h.value,w) > 0) {
           rulesUsed.push({
-            word1: h.value,
-            word2: w,
+            word1: simplifyTag(h.value),
+            word2: simplifyTag(w),
             rule: 'outrank'
           });
           // console.log('breaking because ' + h.value.word + ' outranks ' + w.word);
@@ -445,12 +533,16 @@ var getArcs = function(wordData) {
     }
   });
   console.log(deps);
-  var x = wordList.head;
+  var x = headList.head;
+  var root;
   while (x) {
-    headless.push(x.value);
+    if (deps[x.value.index]) {
+      root = x;
+      break;
+    }
     x = x.next;
   }
-  return { head: headList.head, deps: deps, rules: rulesUsed, headless: headless };
+  return { head: root, deps: deps, rules: rulesUsed };
 };
 
 // build a tree
@@ -460,11 +552,14 @@ var parse = function(wordData) {
   var arcs = arcData.deps;
   var root = arcData.head;
   var tree = new Tree(root.value);
+  var inTree = {};
+  var headless = [];
   //console.log(root);
   var recurse = function (head, node) {
     if (arcs[head]) {
       arcs[head].forEach( function (dependent) {
         var newNode = node.addChild(wordData[dependent]);
+        inTree[wordData[dependent].index] = true;
         if (arcs[dependent]) {
           recurse(dependent, newNode);
         }
@@ -474,8 +569,16 @@ var parse = function(wordData) {
     }
   };
   recurse(root.value.index, tree);
+  console.log('root index: ' + root.value.index);
+  wordData.forEach(function (word) {
+    if (!inTree[word.index] && word.index !== root.value.index ) {
+      console.log('headless word:');
+      console.log(word);
+      headless.push(simplifyTag(word));
+    }
+  });
   //tree.print();
-  return {tree: tree, rules: arcData.rules, headless: arcData.headless };
+  return {tree: tree, rules: arcData.rules, headless: headless };
 };
 
 exports.getArcs = getArcs;

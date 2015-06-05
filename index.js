@@ -31,13 +31,23 @@ app.post('/parse', function(req, res) {
 app.post('/feedback', function(req, res) {
   var sentence = req.body.sentence;
   var badRules = req.body.badRules;
+  var headless = req.body.headlessWords;
   var data = "Sentence: " + sentence + "\n";
-  badRules.forEach(function(rule) {
-    data += "Wrong rule: ";
-    data += rule.word1.word + " (" + rule.word1.tag + ") ";
-    data += "| " + rule.rule + " ON | ";
-    data += rule.word2.word + " (" + rule.word2.tag + ")\n\n";
-  });
+  if (badRules) {
+    badRules.forEach(function(rule) {
+      data += "Wrong rule: ";
+      data += rule.word1.word + " (" + rule.word1.index + ") ";
+      data += "| " + rule.rule + " ON | ";
+      data += rule.word2.word + " (" + rule.word2.index + ")\n";
+    });
+  }
+  if (headless) {
+    headless.forEach(function (hlWord) {
+      data += "Headless word: ";
+      data += hlWord[0].word + " (" + hlWord[0].index + ") | Suggested head: ";
+      data += hlWord[1] + "\n\n";
+    });
+  }
   fs.appendFile('public/feedback.txt', data, function (err) {
     if (err) throw err;
     console.log('Feedback appended!');

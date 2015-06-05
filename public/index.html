@@ -5,6 +5,16 @@
     <link rel="stylesheet" href="tree.css">
   </head>
   <body>
+    <div class="instructions">
+      <h3>Instructions</h3>
+      <p>Enter a sentence and hit the graph button.  Keep it simple!  This is a baby algorithm
+        and can't handle much yet.  I'd like to get it to handle simple cases well before trying
+        tough stuff.</p>
+      <p>After you see the graph, you'll see the rules used to put the words in their place.
+        Check any of the rules that seem wrong, and then click send (once!).
+        Feel free to try more sentences after that.
+        </p>
+    </div>
     <div class="data-input">
       <input id="sentence-input" type="text"></input>
       <button type="nosubmit" id="graph-button">Graph</button>
@@ -12,8 +22,6 @@
     <div id="container"></div>
     <div class="rulesBox">
       <form class="rulesForm">
-      <div class="rulesTable">
-      </div>
       </form>
     </div>
     <script src="bower_components/jquery/dist/jquery.min.js"></script>

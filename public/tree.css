@@ -73,6 +73,22 @@ body {
   font-size: 14px;
 }
 
+
+.instructions {
+  margin: 30px 0 0 30px;
+  width: 600px;
+}
+
+.instructions h3 {
+  font-size: 20px;
+  margin-bottom: 15px;
+}
+
+.instructions p {
+  line-height: 1.25em;
+  margin: 10px 0;
+}
+
 .data-input {
   margin: 30px 0 0 30px;
 }
@@ -90,7 +106,7 @@ body {
   height: 30px;
   font-size: 14px;
   color: #fff;
-  background-color: #89c;
+  background-color: #296;
   border: 1px solid #999;
   border-radius: 5px;
 }
@@ -107,6 +123,20 @@ body {
   fill: none;
   stroke: #ccc;
   stroke-width: 2px;
+}
+
+.rulesBox {
+  margin-left: 30px;
+  width: 600px;
+  padding: 15px;
+}
+
+.rulesBox.notVisible {
+  border: none;
+}
+
+.rulesBox.visible {
+  border: 1px solid #aaa;
 }
 
 .rule {
@@ -128,19 +158,60 @@ body {
 }
 
 .ruleWord {
-  width: 100px;
-  color: #18c;
+  width: 120px;
+  background-color: #18c;
+  color: #fff;
 }
 
 .ruleVerb {
-  width: 50px;
+  width: 90px;
 }
 
 .wrongBox {
   width: 70px;
 }
 
+.ruleHeader {
+  margin: 20px 0;
+  font-size: 20px;
+}
+
+.rule .headless-word {
+  height: 20px;
+  vertical-align: middle;
+  width: 120px;
+  background-color: #18c;
+  color: #fff;
+}
+
+.rule .headless-text {
+  height: 20px;
+  vertical-align: middle;
+  width: 110px;
+}
+
+.rule .input-cont {
+  padding: 0;
+}
+
+.rule .input-cont input {
+  height: 30px;
+  width: 250px;
+  font-size: 14px;
+  padding: 0 5px;
+  border: 1px solid #999;
+  border-radius: 5px;
+}
+
 .send-button {
+  margin-top: 20px;
   position: relative;
-  left: 400px;
+  left: 200px;
+  width: 200px;
+  height: 30px;
+  font-size: 14px;
+  color: #fff;
+  background-color: #296;
+  border: 1px solid #999;
+  border-radius: 5px;
 }

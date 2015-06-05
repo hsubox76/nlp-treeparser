@@ -7,10 +7,13 @@ var getParsedTreeData = function(sentence) {
     data: query,
     success: function(data) {
       console.log('got data');
+      $('.rulesBox').addClass('visible');
+      $('.rulesBox').removeClass('notVisible');
+
       $('#treesvg').remove();
       drawGraph(data.tree);
-      $('.rulesTable').empty();
-      displayRules(data.rules);
+      $('.rulesForm').empty();
+      displayRules(data.rules, data.headless);
     },
     error: function(xhr, status, err) {
       console.log(status);
@@ -19,20 +22,26 @@ var getParsedTreeData = function(sentence) {
 
 };
 
-var handleSubmit = function (rules) {
-  var checkBoxes = $('.rulesForm').find('input');
+var handleSubmit = function (rules, headless) {
+  var inputs = $('.rulesForm').find('input');
   var badRules = [];
-  for (var i = 0; i < checkBoxes.length; i++) {
-    if (checkBoxes[i].checked) {
+  var headlessWords = [];
+  for (var i = 0; i < inputs.length; i++) {
+    if (inputs[i].type === 'checkbox' && inputs[i].checked) {
       badRules.push(rules[i]);
+    }
+    if (inputs[i].type === 'text' && inputs[i].value !== '') {
+      var ind = +inputs[i].id.split('word')[1];
+      headlessWords.push([headless[ind]], inputs[i].value);
     }
   }
   var sentence = $('#sentence-input').val();
   var dataToSend = {
     sentence: sentence,
-    badRules: badRules
+    badRules: badRules,
+    headlessWords: headlessWords
   };
-  if (badRules.length > 0) {
+  if (badRules.length > 0 || headlessWords.length > 0) {
     $.ajax({
       url: 'feedback',
       type: 'POST',
@@ -47,7 +56,11 @@ var handleSubmit = function (rules) {
   }
 };
 
-var displayRules = function(rules) {
+var displayRules = function(rules, headless) {
+
+  $('.rulesForm').append('<div class="rule cf ruleHeader">Rules Used</div>');
+
+  // display rules
   rules.forEach(function (rule, i) {
     var verb = "depends on";
     var ruleString = '<div class="ruleField ruleType">';
@@ -68,14 +81,34 @@ var displayRules = function(rules) {
       .addClass('cf')
       .html(ruleString)
       .data("rule", rule);
-    $('.rulesTable').append($newRow);
+    $('.rulesForm').append($newRow);
   });
-  $sendButton = $('<button>Send</button>').addClass('send-button');
+
+  $('.rulesForm').append('<div class="rule cf ruleHeader">Words with no head:</div>');
+
+  // display headless words
+  headless.forEach(function (word, i) {
+    var hString = '<div class="ruleField headless-word">';
+    hString += word.word + ' (' + word.tag + ')</div>';
+    hString += '<div class="ruleField headless-text">head should be</div>';
+    hString += '<div class="ruleField input-cont"><input type="text" id="word' + i + '" placeholder="choose a word from the sentence" /></div>';
+
+    var $headlessRow = $('<div></div>')
+      .addClass('rule')
+      .addClass('cf')
+      .html(hString);
+    $('.rulesForm').append($headlessRow);
+  });
+
+
+  // SEND button
+  $sendButton = $('<button>Send Feedback</button>').addClass('send-button');
   $('.rulesForm').append($sendButton);
 
+  // call event handler for send button
   $('.rulesForm').submit(function (event) {
     event.preventDefault();
-    handleSubmit(rules);
+    handleSubmit(rules, headless);
   });
 };
 
