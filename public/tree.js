@@ -161,7 +161,6 @@ var drawGraph = function (treeData) {
   node.append("circle")
     .attr("r", 25)
     .style("fill", function(d) {
-      console.log(d.value.negator);
       if (d.value.negator) {
         return "#f33";
       } else {
@@ -182,7 +181,6 @@ var drawGraph = function (treeData) {
     .attr("dy", "-0.2em")
     .attr("text-anchor", "middle")
     .style("fill", function(d) {
-      console.log(d.value.negator);
       if (d.value.negator) {
         return "#fff";
       } else {
@@ -195,7 +193,6 @@ var drawGraph = function (treeData) {
     .attr("dy", ".8em")
     .attr("text-anchor", "middle")
     .style("fill", function(d) {
-      console.log(d.value.negator);
       if (d.value.negator) {
         return "#fff";
       } else {
