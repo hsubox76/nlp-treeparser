@@ -5,24 +5,111 @@
     <link rel="stylesheet" href="tree.css">
   </head>
   <body>
-    <div class="instructions">
-      <h3>Instructions</h3>
-      <p>Enter a sentence and hit the graph button.  Keep it simple!  This is a baby algorithm
-        and can't handle much yet.  I'd like to get it to handle simple cases well before trying
-        tough stuff.</p>
-      <p>After you see the graph, you'll see the rules used to put the words in their place.
-        Check any of the rules that seem wrong, and then click send (once!).
-        Feel free to try more sentences after that.
-        </p>
+    <div class="left-column">
+      <div class="instructions">
+        <h3>Instructions</h3>
+        <p>Enter a sentence and hit the graph button.  Keep it simple!  This is a baby algorithm
+          and can't handle much yet.  I'd like to get it to handle simple cases well before trying
+          tough stuff.</p>
+        <p>After you see the graph, you'll see the rules used to put the words in their place.
+          Check any of the rules that seem wrong, and then click send (once!).
+          Feel free to try more sentences after that.
+          </p>
+        <p>A couple of sentences that seem to work in the parser, if you want to get a feel for
+          what is "right" and "wrong":</p>
+        <p><i>Economic news had little effect on financial markets</i></p>
+        <p><i>I don't like Hillary</i></p>
+        <p><i>The cat was not fat</i></p>
+      </div>
+      <div class="data-input">
+        <input id="sentence-input" type="text"></input>
+        <button type="nosubmit" id="graph-button">Graph</button>
+      </div>
+      <div id="container"></div>
+      <div class="rulesBox">
+        <form class="rulesForm">
+        </form>
+      </div>
     </div>
-    <div class="data-input">
-      <input id="sentence-input" type="text"></input>
-      <button type="nosubmit" id="graph-button">Graph</button>
+    <div class="right-column">
+      <div class="pos-key cf">
+        <h3>Parts of Speech List</h3>
+        <div class="pos-row cf">
+          <div class="pos">adj</div><div class="pos-desc">adjective</div>
+        </div>
+        <div class="pos-row cf">
+          <div class="pos">adv</div><div class="pos-desc">adverb</div>
+        </div>
+        <div class="pos-row cf">
+        <div class="pos">noun</div><div class="pos-desc">noun</div>
+        </div>
+        <div class="pos-row cf">
+        <div class="pos">verb</div><div class="pos-desc">verb</div>
+        </div>
+        <div class="pos-row cf">
+        <div class="pos">prep</div><div class="pos-desc">preposition</div>
+        </div>
+        <div class="pos-row cf">
+        <div class="pos">sym</div><div class="pos-desc">symbol (+,%,$,#)</div>
+        </div>
+        <div class="pos-row cf">
+        <div class="pos">quote</div><div class="pos-desc">quote mark</div>
+        </div>
+        <div class="pos-row cf">
+        <div class="pos">lparen</div><div class="pos-desc">left paren</div>
+        </div>
+        <div class="pos-row cf">
+        <div class="pos">rparen</div><div class="pos-desc">right paren</div>
+        </div>
+        <div class="pos-row cf">
+        <div class="pos">.</div><div class="pos-desc">end of sentence</div>
+        </div>
+        <div class="pos-row cf">
+        <div class="pos">,</div><div class="pos-desc">comma</div>
+        </div>
+        <div class="pos-row cf">
+        <div class="pos">EX</div><div class="pos-desc">existential there</div>
+        </div>
+        <div class="pos-row cf">
+        <div class="pos">FW</div><div class="pos-desc">foreign word</div>
+        </div>
+        <div class="pos-row cf">
+        <div class="pos">LS</div><div class="pos-desc">list item marker</div>
+        </div>
+        <div class="pos-row cf">
+        <div class="pos">RP</div><div class="pos-desc">particle</div>
+        </div>
+        <div class="pos-row cf">
+        <div class="pos">UH</div><div class="pos-desc">interjection</div>
+        </div>
+        <div class="pos-row cf"><br><br></div>
+        <div class="pos-row cf">
+        <h3>Color Key</h3>
+        <p>Negating words are solid red circles.  Negated words have a red outline.
+        The whole negation thing is very much in progress.</p>
+        </div>
+        <div class="pos-row cf"><br><br></div>
+        <div class="pos-row cf">
+        <h3>How Rules Work</h3>
+        <p>These are really simplistic rules, but basically, "depends on" means that
+        the left word can only exist in the sentence if the right one does.  Obvious case:
+        adjectives depend on nouns (since adjectives modify nouns and would have nothing
+        to modify if the noun wasn't there).  Less obvious, subject nouns depend on their verbs.
+        In "the cat was fat", "cat" depends on "was".</p>
+        <p>[PRE] and [POST] indicate whether it's checking for a dependency on a word
+        after or before the current word.  For example, if the sentence contains "quickly ran" and
+        it's checking if "quickly" depends on "ran", that's a [PRE] check.  If it contains "ran quicky"
+        and is again checking if "quickly" depends on "ran", that's a [POST] check.  There are
+        different rules because sometimes something is less likely to be a dependency if it comes after.
+        (Like an adjective after a noun - "cat fat" - usually doesn't depend on the noun, but a verb
+        somewhere, or a following noun.)</p>
+        <p>[OUTR] (outranks) is a weird rule I came up with to prevent words from looking too far
+        back for a head.  For example, try "Economic news had little effect on financial markets".
+        I don't want "little" to go looking at nouns before "had" - "had" is a verb and should be
+        a wall that blocks off this clause.</p>
+        </div>
+      </div>
     </div>
-    <div id="container"></div>
-    <div class="rulesBox">
-      <form class="rulesForm">
-      </form>
     </div>
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
     <script src="bower_components/d3/d3.min.js"></script>

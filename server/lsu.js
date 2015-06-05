@@ -1,5 +1,6 @@
 // LSU (list-based search with uniqueness) based on algorithm here:
 // http://web.stanford.edu/~mjkay/covington.pdf
+var negWords = require('./negationList.js');
 
 var List = function () {
   this.head = null;
@@ -303,11 +304,11 @@ var dependsOn = function (word1, word2, dir) {
   var postRelationships = {
     adj: {
       adj: -1,
-      adv: -1,
+      adv: 1,
       conj: -1,
       noun: 1,
       prep: -1,
-      verb: 1,
+      verb: -1,
     },
     adv: {
       adj: -1,
@@ -329,7 +330,7 @@ var dependsOn = function (word1, word2, dir) {
       adj: -1,
       adv: -1,
       conj: -1,
-      noun: 1,
+      noun: -1,
       prep: 1,
       verb: 1,
     },
@@ -422,7 +423,12 @@ var outranks = function (word1, word2) {
 };
 
 var processWords = function (words) {
+  var isNeg = false;
   return words.map(function(word, i) {
+    isNeg = false;
+    if (word[0] in negWords) {
+      isNeg = true;
+    }
     if (word[0] === "'s") {
       word[1] = 'POS';
     }
@@ -443,7 +449,7 @@ var processWords = function (words) {
         }
       }
     }
-    return {word: word[0], tag: word[1], index: i};
+    return {word: word[0], tag: word[1], negator: isNeg, negated: false, index: i};
   });
 };
 
@@ -491,9 +497,9 @@ var getArcs = function(wordData) {
 
     // seeing if this word is a dependent of any preceding words
     while (h) {
-        console.log('trying to find a head for' + w.word);
-        console.log('trying ' + h.value.word);
-        console.log(dependsOn(w, h.value, 'post'));
+        // console.log('trying to find a head for' + w.word);
+        // console.log('trying ' + h.value.word);
+        // console.log(dependsOn(w, h.value, 'post'));
       if (h.value.index > w.index - 1) {
         h = h.next;
         continue;
@@ -558,7 +564,17 @@ var parse = function(wordData) {
   var recurse = function (head, node) {
     if (arcs[head]) {
       arcs[head].forEach( function (dependent) {
-        var newNode = node.addChild(wordData[dependent]);
+        var parent = wordData[head];
+        var thisWord = wordData[dependent];
+        // parent is negator and not negated
+        if (parent.negator === true && parent.negated === false) {
+          thisWord.negated = true;
+        }
+        // parent is negated and not negator
+        if (parent.negator === false && parent.negated === true) {
+          thisWord.negated = true;
+        }
+        var newNode = node.addChild(thisWord);
         inTree[wordData[dependent].index] = true;
         if (arcs[dependent]) {
           recurse(dependent, newNode);
@@ -569,7 +585,6 @@ var parse = function(wordData) {
     }
   };
   recurse(root.value.index, tree);
-  console.log('root index: ' + root.value.index);
   wordData.forEach(function (word) {
     if (!inTree[word.index] && word.index !== root.value.index ) {
       console.log('headless word:');

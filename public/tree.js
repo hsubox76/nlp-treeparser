@@ -58,7 +58,8 @@ var handleSubmit = function (rules, headless) {
 
 var displayRules = function(rules, headless) {
 
-  $('.rulesForm').append('<div class="rule cf ruleHeader">Rules Used</div>');
+  $('.rulesForm').append('<div class="rule ruleHeader">Rules Used</div>');
+  $('.rulesForm').append('<div class="rule ruleSubHead">Check the "wrong?" box if one of the rules is wrong.</div>');
 
   // display rules
   rules.forEach(function (rule, i) {
@@ -84,21 +85,25 @@ var displayRules = function(rules, headless) {
     $('.rulesForm').append($newRow);
   });
 
-  $('.rulesForm').append('<div class="rule cf ruleHeader">Words with no head:</div>');
+  if (headless.length > 0) {
+    $('.rulesForm').append('<div class="rule cf ruleHeader"><hr></div>');
+    $('.rulesForm').append('<div class="rule cf ruleHeader">Words with no head:</div>');
+    $('.rulesForm').append('<div class="rule ruleSubHead">Type which word you think should be the head of the word in the left column</div>');
 
-  // display headless words
-  headless.forEach(function (word, i) {
-    var hString = '<div class="ruleField headless-word">';
-    hString += word.word + ' (' + word.tag + ')</div>';
-    hString += '<div class="ruleField headless-text">head should be</div>';
-    hString += '<div class="ruleField input-cont"><input type="text" id="word' + i + '" placeholder="choose a word from the sentence" /></div>';
+    // display headless words
+    headless.forEach(function (word, i) {
+      var hString = '<div class="ruleField headless-word">';
+      hString += word.word + ' (' + word.tag + ')</div>';
+      hString += '<div class="ruleField headless-text">head should be</div>';
+      hString += '<div class="ruleField input-cont"><input type="text" id="word' + i + '" placeholder="choose a word from the sentence" /></div>';
 
-    var $headlessRow = $('<div></div>')
-      .addClass('rule')
-      .addClass('cf')
-      .html(hString);
-    $('.rulesForm').append($headlessRow);
-  });
+      var $headlessRow = $('<div></div>')
+        .addClass('rule')
+        .addClass('cf')
+        .html(hString);
+      $('.rulesForm').append($headlessRow);
+    });
+  }
 
 
   // SEND button
@@ -154,16 +159,49 @@ var drawGraph = function (treeData) {
     });
 
   node.append("circle")
-    .attr("r", 25);
+    .attr("r", 25)
+    .style("fill", function(d) {
+      console.log(d.value.negator);
+      if (d.value.negator) {
+        return "#f33";
+      } else {
+        return "#fff";
+      }
+    })
+    .style("stroke", function(d) {
+      if (d.value.negated) {
+        return "red";
+      } else if (d.value.negator) {
+        return "#ccc";
+      } else {
+        return "steelbllue";
+      }
+    });
 
   node.append("text")
     .attr("dy", "-0.2em")
     .attr("text-anchor", "middle")
+    .style("fill", function(d) {
+      console.log(d.value.negator);
+      if (d.value.negator) {
+        return "#fff";
+      } else {
+        return "#000";
+      }
+    })
     .text(function (d) { return d.value.word; });
 
   node.append("text")
     .attr("dy", ".8em")
     .attr("text-anchor", "middle")
+    .style("fill", function(d) {
+      console.log(d.value.negator);
+      if (d.value.negator) {
+        return "#fff";
+      } else {
+        return "#000";
+      }
+    })
     .text(function (d) { return "(" + d.value.tag + ")"; });
 };
 

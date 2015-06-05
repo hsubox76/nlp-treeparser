@@ -73,20 +73,36 @@ body {
   font-size: 14px;
 }
 
-
-.instructions {
-  margin: 30px 0 0 30px;
-  width: 600px;
-}
-
-.instructions h3 {
+h3 {
   font-size: 20px;
   margin-bottom: 15px;
 }
 
-.instructions p {
+p {
+  position: relative;
   line-height: 1.25em;
   margin: 10px 0;
+}
+
+i {
+  font-style: italic;
+}
+
+.left-column {
+  position: relative;
+  float: left;
+  width: 682px;
+}
+
+.right-column {
+  width: 300px;
+  position: relative;
+  float: left;
+}
+
+.instructions {
+  margin: 30px 0 0 30px;
+  width: 600px;
 }
 
 .data-input {
@@ -111,6 +127,28 @@ body {
   border-radius: 5px;
 }
 
+.pos-key {
+  position: relative;
+  margin: 30px 0 30px 30px;
+/*  background-color: #9cf;*/
+  padding: 15px;
+  border: 1px solid #9c9;
+}
+
+.pos {
+  position: relative;
+  float: left;
+  padding: 5px;
+  color: #2a8;
+  width: 50px;
+}
+
+.pos-desc {
+  position: relative;
+  float: left;
+  padding: 5px;
+}
+
 .node circle {
   fill: #fff;
   stroke: steelblue;
@@ -126,7 +164,7 @@ body {
 }
 
 .rulesBox {
-  margin-left: 30px;
+  margin: 10px 20px 30px 30px;
   width: 600px;
   padding: 15px;
 }
@@ -172,8 +210,14 @@ body {
 }
 
 .ruleHeader {
-  margin: 20px 0;
+  margin: 15px 0 5px 0;
   font-size: 20px;
+}
+
+.ruleSubHead {
+  margin: 5px 0 20px 0;
+  font-size: 16px;
+  color: #18c;
 }
 
 .rule .headless-word {
