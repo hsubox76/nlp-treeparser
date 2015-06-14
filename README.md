@@ -6,3 +6,6 @@ given sentence and displays the tree graphically using D3.
 It uses the treebank tokenizer from [Natural Node](https://github.com/NaturalNode/natural)
 and the POS tagger from [pos-js](https://github.com/dariusk/pos-js) to create tokens tagged
 with part-of-speech, and goes from there to try to determined a tree hierarchy.
+
+It is still a work in progress and has a simple feedback mechanism for users to try
+out sentences and send feedback about any incorrectly parsed words.
